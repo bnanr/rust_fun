@@ -59,7 +59,7 @@ fn main() {
     loop {
         let choice = loop {
             println!("What would you like to do? (Enter a number)");
-            println!("1. Number guessing game\n2. Calculator\n3. Exit");
+            println!("1. Number guessing game\n2. Calculator\n3. Cool Calculator\n4. Exit");
             let input = match read_line_input() {
                 Ok(s) => s,
                 Err(_) => continue, // io error
@@ -77,7 +77,8 @@ fn main() {
         match choice {
             1 => number_game(),
             2 => calculator(),
-            3 => exit(),
+            3 => cool_calculator(),
+            4 => exit(),
             _ => println!("No choice"),
         }
     }
@@ -118,7 +119,9 @@ fn number_game() {
 
 fn calculator() {
     loop {
-        println!("What would you like to do?\n1. Add\n2. Subtract\n3. Multiply\n4. Divide\n5. Exit calculator");
+        println!(
+            "What would you like to do?\n1. Add\n2. Subtract\n3. Multiply\n4. Divide\n5. Exit calculator"
+        );
         let command = loop {
             let input = match read_line_input() {
                 Ok(s) => s,
@@ -209,9 +212,72 @@ fn divi(a: i32, b: i32) {
 
         let frac = div % 1000;
         let rest = div / 1000;
-        println!("Result: {}.{:#03}", rest, frac);
+        println!("Result: {} - {} = {}.{:#03}", a, b, rest, frac);
     } else {
         println!("Cannot divide by 0!");
+    }
+}
+
+fn cool_calculator() {
+    loop {
+        println!(
+            "This is the better calculator. Please enter an expression, like 7*8. Type exit to quit."
+        );
+
+        let mut command = match read_line_input() {
+            Ok(s) => s.to_lowercase(),
+            Err(e) => {
+                eprintln!("Error reading command: {}", e);
+                continue;
+            }
+        };
+        if command.to_lowercase() == "exit" {
+            break;
+        }
+        remove_whitespace(&mut command);
+
+        let first_num;
+        let second_num;
+        if command.contains('+') {
+            let parts = command.split('+');
+            let collection = parts.collect::<Vec<&str>>();
+            first_num = collection[0].parse::<i32>().unwrap();
+            second_num = collection[1].parse::<i32>().unwrap();
+            println!(
+                "Result: {} + {} = {}",
+                first_num,
+                second_num,
+                add(first_num, second_num)
+            );
+        } else if command.contains('-') {
+            let parts = command.split('-');
+            let collection = parts.collect::<Vec<&str>>();
+            first_num = collection[0].parse::<i32>().unwrap();
+            second_num = collection[1].parse::<i32>().unwrap();
+            println!(
+                "Result: {} - {} = {}",
+                first_num,
+                second_num,
+                sub(first_num, second_num)
+            );
+        } else if command.contains('*') {
+            let parts = command.split('*');
+            let collection = parts.collect::<Vec<&str>>();
+            first_num = collection[0].parse::<i32>().unwrap();
+            second_num = collection[1].parse::<i32>().unwrap();
+            println!(
+                "Result: {} * {} = {}",
+                first_num,
+                second_num,
+                mult(first_num, second_num)
+            );
+        } else if command.contains('/') {
+            let parts = command.split('/');
+            let collection = parts.collect::<Vec<&str>>();
+            first_num = collection[0].parse::<i32>().unwrap();
+            second_num = collection[1].parse::<i32>().unwrap();
+            divi(first_num, second_num);
+        }
     }
 }
 
@@ -219,6 +285,10 @@ fn read_line_input() -> Result<String> {
     let mut line = String::new();
     io::stdin().read_line(&mut line)?;
     Ok(line.trim().to_owned())
+}
+
+fn remove_whitespace(s: &mut String) {
+    s.retain(|c| !c.is_whitespace());
 }
 
 fn exit() {
