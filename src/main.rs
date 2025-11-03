@@ -222,7 +222,7 @@ fn divi(a: i32, b: i32) {
 
         let frac = div % 1000;
         let rest = div / 1000;
-        println!("Result: {} - {} = {}.{:#03}", a, b, rest, frac);
+        println!("Result: {} / {} = {}.{:#03}", a, b, rest, frac);
     } else {
         println!("Cannot divide by 0!");
     }
@@ -315,7 +315,7 @@ fn even_cooler_calc() {
         let tokens = tokenize(command.as_str());
         let mut iter = tokens.iter();
         let result = parse_expr(&mut iter);
-        println!("Result: {}", result);
+        println!("{} = {}", command, result);
     }
 }
 
