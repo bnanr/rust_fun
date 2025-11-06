@@ -4,15 +4,6 @@ use std::io;
 use std::num::ParseIntError;
 use std::process::{self};
 
-#[derive(Debug)]
-pub enum TodoError {
-    Io(io::Error),
-    Parse(ParseIntError),
-    NotFound,
-    Serialization(serde_json::Error),
-    InvalidInput,
-}
-
 #[derive(Debug, Clone)]
 enum Token {
     Number(f64),
@@ -20,6 +11,14 @@ enum Token {
     Minus,
     Multiply,
     Divide,
+}
+
+pub enum TodoError {
+    Io(io::Error),
+    Parse(ParseIntError),
+    NotFound,
+    Serialization(serde_json::Error),
+    InvalidInput,
 }
 
 impl fmt::Display for TodoError {
@@ -68,7 +67,9 @@ fn main() {
     loop {
         let choice = loop {
             println!("What would you like to do? (Enter a number)");
-            println!("1. Number guessing game\n2. Calculator\n3. Cool Calculator\n4. Even Cooler Calculator\n5. Exit");
+            println!(
+                "1. Number guessing game\n2. Calculator\n3. Cool Calculator\n4. Even Cooler Calculator\n5. Temperature Converter\n6. Exit"
+            );
             let input = match read_line_input() {
                 Ok(s) => s,
                 Err(_) => continue, // io error
@@ -88,13 +89,14 @@ fn main() {
             2 => calculator(),
             3 => cool_calculator(),
             4 => even_cooler_calc(),
-            5 => exit(),
+            5 => temp_convert(),
+            6 => exit(),
             _ => println!("No choice"),
         }
     }
 }
 
-fn number_game() {
+pub fn number_game() {
     let mut rng = rand::thread_rng();
     loop {
         let random_number = rng.gen_range(1..=10);
@@ -296,9 +298,7 @@ fn cool_calculator() {
 fn even_cooler_calc() {
     println!("This is the EVEN better calculator!");
     loop {
-        println!(
-            "Please enter an expression, like 7*8+5. Type exit to quit."
-        );
+        println!("Please enter an expression, like 7*8+5. Type exit to quit.");
 
         let mut command = match read_line_input() {
             Ok(s) => s.to_lowercase(),
@@ -395,8 +395,7 @@ fn parse_expr(tokens: &mut std::slice::Iter<Token>) -> f64 {
     value
 }
 
-
-fn read_line_input() -> Result<String> {
+pub fn read_line_input() -> Result<String> {
     let mut line = String::new();
     io::stdin().read_line(&mut line)?;
     Ok(line.trim().to_owned())
@@ -404,6 +403,44 @@ fn read_line_input() -> Result<String> {
 
 fn remove_whitespace(s: &mut String) {
     s.retain(|c| !c.is_whitespace());
+}
+
+fn temp_convert() {
+    println!("Convert Fahrenheit to celcius or the other way.");
+    loop {
+        println!("Please enter an expression, like 76C or -12F. Type exit to quit.");
+
+        let mut command = match read_line_input() {
+            Ok(s) => s.to_lowercase(),
+            Err(e) => {
+                eprintln!("Error reading command: {}", e);
+                continue;
+            }
+        };
+        if command.to_lowercase() == "exit" {
+            break;
+        }
+
+        if command.contains('F') || command.contains('f') {
+            command.truncate(command.len() - 1);
+            let res = f_to_c(command.parse().unwrap());
+            println!("{}F is {}C.", command, res);
+        } else if command.contains('C') || command.contains('c') {
+            command.truncate(command.len() - 1);
+            let res = c_to_f(command.parse().unwrap());
+            println!("{}C is {}F.", command, res);
+        } else {
+            println!("Invalid expression, try again!");
+        }
+    }
+}
+
+fn c_to_f(c: f32) -> f32 {
+    c * (9.0 / 5.0) + 32.0
+}
+
+fn f_to_c(f: f32) -> f32 {
+    (f - 32.0) * (5.0 / 9.0)
 }
 
 fn exit() {
