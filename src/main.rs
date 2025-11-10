@@ -421,14 +421,22 @@ fn temp_convert() {
             break;
         }
 
-        if command.contains('F') || command.contains('f') {
+        if (command.ends_with('F') || command.ends_with('f')) && (command.len() > 1) {
             command.truncate(command.len() - 1);
-            let res = f_to_c(command.parse().unwrap());
-            println!("{}F is {}C.", command, res);
-        } else if command.contains('C') || command.contains('c') {
+            if command.parse::<f64>().is_ok() {
+                let res = f_to_c(command.parse().unwrap());
+                println!("{}F is {}C.", command, res);
+            } else {
+                println!("Not a number, try again!");
+            }
+        } else if (command.ends_with('C') || command.ends_with('c')) && (command.len() > 1) {
             command.truncate(command.len() - 1);
-            let res = c_to_f(command.parse().unwrap());
-            println!("{}C is {}F.", command, res);
+            if command.parse::<f64>().is_ok() {
+                let res = c_to_f(command.parse().unwrap());
+                println!("{}C is {}F.", command, res);
+            } else {
+                println!("Not a number, try again!");
+            }
         } else {
             println!("Invalid expression, try again!");
         }
