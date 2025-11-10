@@ -406,10 +406,9 @@ fn remove_whitespace(s: &mut String) {
 }
 
 fn temp_convert() {
-    println!("Convert Fahrenheit to celcius or the other way.");
+    println!("Convert between Fahrenheit, Celcius and Kelvin.");
     loop {
-        println!("Please enter an expression, like 76C or -12F. Type exit to quit.");
-
+        println!("Please enter an expression, like 76C, 100K or -12F. Type exit to quit.");
         let mut command = match read_line_input() {
             Ok(s) => s.to_lowercase(),
             Err(e) => {
@@ -421,19 +420,48 @@ fn temp_convert() {
             break;
         }
 
+        println!("What unit would you like to convert to? Type C, F or K.");
+        let selected_unit = match read_line_input() {
+            Ok(s) => s.to_lowercase(),
+            Err(e) => {
+                eprintln!("Error reading command: {}", e);
+                continue;
+            }
+        };
+
         if (command.ends_with('F') || command.ends_with('f')) && (command.len() > 1) {
             command.truncate(command.len() - 1);
             if command.parse::<f64>().is_ok() {
-                let res = f_to_c(command.parse().unwrap());
-                println!("{}F is {}C.", command, res);
+                let res = match selected_unit.to_lowercase().as_str() {
+                    "c" => f_to_c(command.parse().unwrap()),
+                    "k" => f_to_k(command.parse().unwrap()),
+                    _ => 0.0,
+                };
+                println!("{}F is {}{}.", command, res, selected_unit);
             } else {
                 println!("Not a number, try again!");
             }
         } else if (command.ends_with('C') || command.ends_with('c')) && (command.len() > 1) {
             command.truncate(command.len() - 1);
             if command.parse::<f64>().is_ok() {
-                let res = c_to_f(command.parse().unwrap());
-                println!("{}C is {}F.", command, res);
+                let res = match selected_unit.to_lowercase().as_str() {
+                    "f" => c_to_f(command.parse().unwrap()),
+                    "k" => c_to_k(command.parse().unwrap()),
+                    _ => 0.0,
+                };
+                println!("{}C is {}{}.", command, res, selected_unit);
+            } else {
+                println!("Not a number, try again!");
+            }
+        } else if (command.ends_with('K') || command.ends_with('k')) && (command.len() > 1) {
+            command.truncate(command.len() - 1);
+            if command.parse::<f64>().is_ok() {
+                let res = match selected_unit.to_lowercase().as_str() {
+                    "f" => k_to_f(command.parse().unwrap()),
+                    "c" => k_to_c(command.parse().unwrap()),
+                    _ => 0.0,
+                };
+                println!("{}K is {}{}.", command, res, selected_unit);
             } else {
                 println!("Not a number, try again!");
             }
@@ -449,6 +477,22 @@ fn c_to_f(c: f32) -> f32 {
 
 fn f_to_c(f: f32) -> f32 {
     (f - 32.0) * (5.0 / 9.0)
+}
+
+fn c_to_k(c: f32) -> f32 {
+    c + 273.15
+}
+
+fn f_to_k(f: f32) -> f32 {
+    c_to_k(f_to_c(f))
+}
+
+fn k_to_c(k: f32) -> f32 {
+    k - 273.15
+}
+
+fn k_to_f(k: f32) -> f32 {
+    c_to_f(k_to_c(k))
 }
 
 fn exit() {
