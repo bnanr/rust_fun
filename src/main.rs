@@ -7,8 +7,8 @@ use std::process::{self};
 #[derive(Debug, Clone)]
 enum Token {
     Number(f64),
-    Plus,
-    Minus,
+    Add,
+    Subtract,
     Multiply,
     Divide,
 }
@@ -332,8 +332,8 @@ fn tokenize(expr: &str) -> Vec<Token> {
                     num_buf.clear();
                 }
                 tokens.push(match ch {
-                    '+' => Token::Plus,
-                    '-' => Token::Minus,
+                    '+' => Token::Add,
+                    '-' => Token::Subtract,
                     '*' => Token::Multiply,
                     '/' => Token::Divide,
                     _ => unreachable!(),
@@ -381,11 +381,11 @@ fn parse_expr(tokens: &mut std::slice::Iter<Token>) -> f64 {
     let mut value = parse_mul_div(tokens);
     while let Some(token) = tokens.clone().next() {
         match token {
-            Token::Plus => {
+            Token::Add => {
                 tokens.next();
                 value += parse_mul_div(tokens);
             }
-            Token::Minus => {
+            Token::Subtract => {
                 tokens.next();
                 value -= parse_mul_div(tokens);
             }
@@ -498,4 +498,23 @@ fn k_to_f(k: f32) -> f32 {
 fn exit() {
     println!("Exiting application.");
     process::exit(0);
+}
+
+// Tests
+#[cfg(test)]
+mod tests {
+    use crate::c_to_f;
+    use crate::f_to_c;
+
+    #[test]
+    fn test_c_to_f() {
+        assert_eq!(c_to_f(0.0), 32.0);
+        assert_eq!(c_to_f(100.0), 212.0);
+    }
+
+    #[test]
+    fn test_f_to_c() {
+        assert_eq!(f_to_c(32.0), 0.0);
+        assert_eq!(f_to_c(55.5), 13.055556);
+    }
 }
